@@ -3,8 +3,8 @@ import React, { useEffect, useState, useRef } from 'react';
 function Chat({ socket, username, room }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [typingStatus, setTypingStatus] = useState(""); // Kim yazıyor bilgisini tutar
   
-  // Otomatik kaydırma için referans noktası
   const messagesEndRef = useRef(null);
 
   const sendMessage = async () => {
@@ -23,23 +23,41 @@ function Chat({ socket, username, room }) {
     }
   };
 
+  // Klavyeye basıldığında çalışır
+  const handleTyping = (e) => {
+    setCurrentMessage(e.target.value);
+    // Sunucuya "Ben yazıyorum" de
+    socket.emit("typing", { room: room, author: username });
+  }
+
   useEffect(() => {
-    const handler = (data) => {
-      console.log("Mesaj Alındı:", data);
+    const messageHandler = (data) => {
       setMessageList((list) => [...list, data]);
+      setTypingStatus(""); // Mesaj geldiyse "yazıyor" yazısını sil
+    };
+
+    const typingHandler = (data) => {
+      // "Ali yazıyor..." şeklinde güncelle
+      setTypingStatus(`${data.author} yazıyor...`);
+      
+      // 2 saniye sonra yazıyı otomatik sil (yoksa sonsuza kadar kalır)
+      setTimeout(() => {
+        setTypingStatus("");
+      }, 3000);
     };
     
-    socket.on("receive_message", handler);
+    socket.on("receive_message", messageHandler);
+    socket.on("display_typing", typingHandler);
 
     return () => {
-      socket.off("receive_message", handler);
+      socket.off("receive_message", messageHandler);
+      socket.off("display_typing", typingHandler);
     };
   }, [socket]);
 
-  // Mesaj listesi her değiştiğinde en alta kaydır
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messageList]);
+  }, [messageList, typingStatus]); // typingStatus değişince de kaydır
 
   return (
     <div className="chat-window">
@@ -56,7 +74,6 @@ function Chat({ socket, username, room }) {
             >
               <div>
                 <div className="message-content">
-                  {/* Renk sorununu çözmek için style ekledik */}
                   <p style={{color: 'black', margin: 0}}>{messageContent.message}</p>
                 </div>
                 <div className="message-meta">
@@ -67,15 +84,20 @@ function Chat({ socket, username, room }) {
             </div>
           );
         })}
-        {/* Görünmez bir div, her zaman en altta durur */}
+        {/* Yazıyor bilgisi burada görünecek */}
+        {typingStatus && (
+          <div className="typing-indicator" style={{fontStyle: 'italic', color: '#555', padding: '5px 10px', fontSize: '12px'}}>
+            {typingStatus}
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div className="chat-footer">
         <input
           type="text"
           value={currentMessage}
-          placeholder="Merhaba..."
-          onChange={(event) => setCurrentMessage(event.target.value)}
+          placeholder="Bir mesaj yazın..."
+          onChange={handleTyping} // Değişiklik: Buraya yeni fonksiyonu bağladık
           onKeyPress={(event) => { event.key === "Enter" && sendMessage(); }}
         />
         <button onClick={sendMessage}>&#9658;</button>
