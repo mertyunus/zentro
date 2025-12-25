@@ -32,6 +32,11 @@ io.on("connection", (socket) => {
     socket.to(data.room).emit("receive_message", data);
   });
 
+  socket.on("typing", (data) => {
+    // Sinyali gönderen hariç herkese 'display_typing' eventi yolla
+    socket.to(data.room).emit("display_typing", data);
+  });
+
   // 3. Ayrılma
   socket.on("disconnect", () => {
     console.log("Kullanıcı Ayrıldı", socket.id);
