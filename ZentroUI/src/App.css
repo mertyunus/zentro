@@ -290,3 +290,34 @@
 .chat-body {
   height: calc(100% - 100px); /* Header ve footerı çıkar */
 }
+
+/* Emoji Butonu */
+.emoji-btn {
+  font-size: 20px !important; /* Butonu biraz büyüt */
+  background: none !important; /* Arka planı kaldır */
+  border: none !important;
+  cursor: pointer;
+  padding: 0 10px !important;
+  width: 50px !important;
+  transition: transform 0.2s;
+}
+
+.emoji-btn:hover {
+  transform: scale(1.2); /* Üzerine gelince büyüsün */
+}
+
+/* Emoji Paneli Konumu */
+.emoji-picker-container {
+  position: absolute; /* Havada asılı dur */
+  bottom: 60px; /* Footer'ın biraz üstünde */
+  left: 20px;
+  z-index: 100; /* Her şeyin üstünde görün */
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* Chat footer düzenlemesi (Input ve butonlar yan yana sığsın) */
+.chat-footer {
+  position: relative; /* Emoji paneli buna göre konumlanacak */
+  display: flex;
+  align-items: center;
+}
