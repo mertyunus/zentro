@@ -74,6 +74,16 @@ app.post('/login', async (req, res) => {
 
     res.json({ token, username: user.username, userId: user._id });
 
+    app.get('/users/:currentUserId', async (req, res) => {
+      try {
+        const currentUserId = req.params.currentUserId;
+        // Kendisi hariç ($ne: not equal) tüm kullanıcıları bul, sadece username ve _id getir
+        const users = await User.find({ _id: { $ne: currentUserId } }).select("username _id");
+        res.json(users);
+      } catch (error) {
+        res.status(500).json({ message: "Kullanıcılar alınamadı" });
+      }
+    });
   } catch (error) {
     res.status(500).json({ message: "Sunucu hatası" });
   }
@@ -84,7 +94,7 @@ app.post('/login', async (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*", 
+    origin: "*",
     methods: ["GET", "POST"]
   }
 });
@@ -93,7 +103,7 @@ io.on("connection", (socket) => {
   console.log(`Kullanıcı Bağlandı: ${socket.id}`);
 
   socket.on("join_room", (room) => {
-    socket.join(room); 
+    socket.join(room);
     Message.find({ room: room }).then((messages) => {
       socket.emit("load_old_messages", messages);
     });
