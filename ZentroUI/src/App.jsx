@@ -4,76 +4,84 @@ import io from 'socket.io-client';
 import Chat from './Chat';
 import Login from './Login';
 import Register from './Register';
+import Sidebar from './Sidebar';
 
-// Socket bağlantısını şimdilik burada başlatıyoruz
 const socket = io.connect("http://localhost:3001");
 
 function App() {
-  const [user, setUser] = useState(null); // Giriş yapmış kullanıcı bilgisi
-  const [token, setToken] = useState(null); // Giriş bileti
-  const [currentScreen, setCurrentScreen] = useState("login"); // login, register, chat
+  // currentUser artık bir obje: { username: "ali", userId: "123..." }
+  const [currentUser, setCurrentUser] = useState(null); 
+  const [token, setToken] = useState(null);
+  const [currentScreen, setCurrentScreen] = useState("login");
+  
+  // Seçilen sohbet arkadaşı
+  const [selectedUser, setSelectedUser] = useState(null);
   const [room, setRoom] = useState("");
-  const [isInChat, setIsInChat] = useState(false);
 
-  // Kullanıcı başarıyla giriş yapınca çalışır
-  const handleLoginSuccess = (token, username) => {
+  const handleLoginSuccess = (token, username, userId) => {
     setToken(token);
-    setUser(username);
-    setCurrentScreen("room_select"); // Oda seçmeye gönder
+    setCurrentUser({ username, userId }); // Tüm bilgileri sakla
+    setCurrentScreen("chat_interface");
   };
 
-  // Odaya katıl butonuna basınca
-  const joinRoom = () => {
-    if (user && room !== "") {
-      const odaID = String(room);
-      socket.emit("join_room", odaID);
-      setIsInChat(true); // Sohbeti aç
-    }
-  };
-
-  // Çıkış yapma fonksiyonu
   const logout = () => {
-    setUser(null);
+    setCurrentUser(null);
     setToken(null);
-    setIsInChat(false);
+    setSelectedUser(null);
     setCurrentScreen("login");
+  };
+
+  // Bir kullanıcıya tıklayınca çalışır
+  const startChat = (otherUser) => {
+    setSelectedUser(otherUser);
+
+    // --- ÖZEL ODA ALGORİTMASI ---
+    // Ali (ID: 10) ve Veli (ID: 20) konuşurken oda ID hep aynı olmalı.
+    // Çözüm: ID'leri alfabetik sıraya dizip birleştir.
+    // Oda ID: "10_20" (Ali de tıklasa, Veli de tıklasa sonuç aynı olur)
+    
+    const ids = [currentUser.userId, otherUser._id].sort();
+    const newRoomID = ids.join("_");
+    
+    setRoom(newRoomID);
+    socket.emit("join_room", newRoomID);
   };
 
   return (
     <div className="App">
       
-      {/* 1. KULLANICI GİRİŞ YAPMAMIŞSA */}
-      {!user && (
-        <>
-          {currentScreen === "login" ? (
-            <Login onLogin={handleLoginSuccess} onSwitch={setCurrentScreen} />
-          ) : (
-            <Register onSwitch={setCurrentScreen} />
-          )}
-        </>
-      )}
+      {!currentUser ? (
+        currentScreen === "login" ? (
+          <Login onLogin={handleLoginSuccess} onSwitch={setCurrentScreen} />
+        ) : (
+          <Register onSwitch={setCurrentScreen} />
+        )
+      ) : (
+        // GİRİŞ YAPILMIŞ EKRAN (WhatsApp Tasarımı)
+        <div className="main-container">
+          
+          {/* SOL TARA (Kişi Listesi) */}
+          <div className="sidebar-container">
+            <Sidebar 
+              currentUser={currentUser} 
+              onSelectUser={startChat} 
+              onLogout={logout} 
+            />
+          </div>
 
-      {/* 2. GİRİŞ YAPMIŞ AMA HENÜZ ODAYA GİRMEMİŞSE */}
-      {user && !isInChat && (
-        <div className="joinChatContainer">
-          <h3>Hoşgeldin, {user}! 👋</h3>
-          <p>Hangi odaya girmek istersin?</p>
-          <input 
-            type="text" 
-            placeholder="Oda ID..." 
-            onChange={(event) => setRoom(event.target.value)}
-          />
-          <button onClick={joinRoom}>Odaya Katıl</button>
-          <button onClick={logout} style={{backgroundColor: '#d32f2f', marginTop: '10px'}}>Çıkış Yap</button>
+          {/* SAĞ TARAF (Sohbet) */}
+          <div className="chat-area">
+            {selectedUser ? (
+              <Chat socket={socket} username={currentUser.username} room={room} />
+            ) : (
+              <div className="welcome-screen">
+                <h3>Zentro'ya Hoşgeldin! 👋</h3>
+                <p>Mesajlaşmak için soldan bir kişi seç.</p>
+              </div>
+            )}
+          </div>
+
         </div>
-      )}
-
-      {/* 3. SOHBET EKRANI */}
-      {user && isInChat && (
-        <>
-          <Chat socket={socket} username={user} room={room} />
-          <button className="back-btn" onClick={() => setIsInChat(false)}>Odadan Çık</button>
-        </>
       )}
 
     </div>
