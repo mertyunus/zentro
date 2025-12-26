@@ -1,13 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require("socket.io");
 const mongoose = require('mongoose');
-const Message = require('./models/Message'); 
-require('dotenv').config();
+const bcrypt = require('bcryptjs'); // Şifreleme için
+const jwt = require('jsonwebtoken'); // Token (Bilet) için
+
+const Message = require('./models/Message');
+const User = require('./models/User'); // Yeni kullanıcı modelimiz
 
 const app = express();
+
 app.use(cors());
+app.use(express.json()); // Gelen JSON verilerini okumak için şart!
 
 // --- VERİTABANI BAĞLANTISI ---
 const dbURL = process.env.MONGO_URI;
@@ -16,8 +22,66 @@ mongoose.connect(dbURL)
   .then(() => console.log("✅ VERİTABANINA BAĞLANDI!"))
   .catch((err) => console.log("❌ Veritabanı Hatası:", err));
 
-const server = http.createServer(app);
+// --- AUTH (KİMLİK) İŞLEMLERİ ---
 
+// 1. KAYIT OLMA (REGISTER)
+app.post('/register', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Kullanıcı zaten var mı?
+    const existingUser = await User.findOne({ username });
+    if (existingUser) {
+      return res.status(400).json({ message: "Bu kullanıcı adı zaten alınmış." });
+    }
+
+    // Şifreyi kriptola (Hash)
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Yeni kullanıcıyı oluştur
+    const newUser = new User({
+      username,
+      password: hashedPassword
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: "Kullanıcı başarıyla oluşturuldu!" });
+
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası" });
+  }
+});
+
+// 2. GİRİŞ YAPMA (LOGIN)
+app.post('/login', async (req, res) => {
+  try {
+    const { username, password } = req.body;
+
+    // Kullanıcıyı bul
+    const user = await User.findOne({ username });
+    if (!user) {
+      return res.status(400).json({ message: "Kullanıcı bulunamadı!" });
+    }
+
+    // Şifreyi kontrol et (Hash'li şifre ile girilen şifreyi kıyasla)
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "Şifre yanlış!" });
+    }
+
+    // Giriş başarılı! Ona dijital bir bilet (Token) verelim
+    const token = jwt.sign({ id: user._id, username: user.username }, "GIZLI_KELIME", { expiresIn: "1h" });
+
+    res.json({ token, username: user.username, userId: user._id });
+
+  } catch (error) {
+    res.status(500).json({ message: "Sunucu hatası" });
+  }
+});
+
+
+// --- SOCKET.IO SUNUCUSU ---
+const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "*", 
@@ -28,36 +92,22 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`Kullanıcı Bağlandı: ${socket.id}`);
 
-  // 1. Odaya Katılma ve ESKİ MESAJLARI YÜKLEME
   socket.on("join_room", (room) => {
     socket.join(room); 
-    console.log(`Kullanıcı ID: ${socket.id} - Oda: ${room} odasına katıldı.`);
-
-    // Veritabanından o odaya ait mesajları bul
     Message.find({ room: room }).then((messages) => {
-      // Sadece odaya giren kişiye eski mesajları yolla
       socket.emit("load_old_messages", messages);
     });
   });
 
-  // 2. Mesaj Gönderme ve KAYDETME
   socket.on("send_message", (data) => {
-    // Önce veritabanına kaydet
     const messageToSave = new Message(data);
-    
     messageToSave.save().then(() => {
-      // Kayıt başarılıysa diğerlerine gönder
       socket.to(data.room).emit("receive_message", data);
-    }).catch((err) => console.log("Mesaj kaydedilemedi:", err));
+    });
   });
 
-  // 3. Yazıyor Sinyali
   socket.on("typing", (data) => {
     socket.to(data.room).emit("display_typing", data);
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Kullanıcı Ayrıldı", socket.id);
   });
 });
 
