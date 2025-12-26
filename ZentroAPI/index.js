@@ -119,6 +119,21 @@ io.on("connection", (socket) => {
   socket.on("typing", (data) => {
     socket.to(data.room).emit("display_typing", data);
   });
+
+  socket.on("mark_as_read", async ({ room, user }) => {
+    try {
+      await Message.updateMany(
+        { room: room, author: { $ne: user }, isRead: false },
+        { $set: { isRead: true } }
+      );
+      io.to(room).emit("messages_read_update");
+      
+    } catch (error) {
+      console.log("Okundu hatası:", error);
+    }
+  });
+
+
 });
 
 server.listen(3001, () => {

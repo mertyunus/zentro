@@ -321,3 +321,67 @@
   display: flex;
   align-items: center;
 }
+
+/* --- AVATAR STİLLERİ --- */
+
+/* Sidebar'daki Avatarlar */
+.avatar-img {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%; /* Tam yuvarlak */
+  margin-right: 15px;
+  background-color: #eee; /* Resim yüklenene kadar gri */
+  border: 2px solid #fff;
+}
+
+.username-text {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+/* Sohbet İçindeki Düzen */
+.message-container {
+  display: flex;
+  align-items: flex-end; /* Avatarı mesajın en altına hizala */
+  margin-bottom: 10px;
+}
+
+/* Mesaj balonunun yanındaki küçük avatar */
+.chat-avatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  margin-right: 10px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Kendi mesajlarımız sağa yaslansın */
+#you {
+  justify-content: flex-end;
+}
+
+#you .message-content {
+  background-color: #dcf8c6;
+  border-radius: 10px 10px 0 10px; /* Köşeleri yuvarla */
+}
+
+#other {
+  justify-content: flex-start;
+}
+
+#other .message-content {
+  background-color: #fff;
+  border-radius: 10px 10px 10px 0;
+}
+
+/* Seçili Olan Kullanıcı */
+.user-item.active {
+  background-color: #34495e; /* Daha açık bir gri/mavi tonu */
+  border-left: 5px solid #3f51b5; /* Soluna mavi bir çizgi çekelim, havalı dursun */
+}
+
+/* Hover (üzerine gelince) efekti ile çakışmaması için */
+.user-item:hover {
+  background-color: #2c3e50; /* Hover rengi */
+}
