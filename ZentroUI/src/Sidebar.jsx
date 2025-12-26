@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
-function Sidebar({ currentUser, onSelectUser, onLogout }) {
+function Sidebar({ currentUser, onSelectUser, onLogout, selectedUser }) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
@@ -36,9 +36,19 @@ function Sidebar({ currentUser, onSelectUser, onLogout }) {
       </div>
       <div className="users-list">
         {users.map((user) => (
-          <div key={user._id} className="user-item" onClick={() => onSelectUser(user)}>
-            <div className="avatar">{user.username.charAt(0).toUpperCase()}</div>
-            <p>{user.username}</p>
+          <div 
+            key={user._id} 
+            // 2. MANTIK BURADA: Eğer ID'ler eşleşiyorsa "active" sınıfını ekle
+            className={`user-item ${selectedUser && selectedUser._id === user._id ? "active" : ""}`} 
+            onClick={() => onSelectUser(user)}
+          >
+            {/* ... resim ve isim kısımları aynı ... */}
+             <img 
+              className="avatar-img" 
+              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.username}`} 
+              alt="avatar" 
+            />
+            <p className="username-text">{user.username}</p>
           </div>
         ))}
       </div>

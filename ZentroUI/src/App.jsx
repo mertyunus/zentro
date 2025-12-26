@@ -66,6 +66,7 @@ function App() {
               currentUser={currentUser} 
               onSelectUser={startChat} 
               onLogout={logout} 
+              selectedUser={selectedUser}
             />
           </div>
 
