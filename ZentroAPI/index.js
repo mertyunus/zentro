@@ -2,10 +2,19 @@ const express = require('express');
 const http = require('http');
 const cors = require('cors');
 const { Server } = require("socket.io");
+const mongoose = require('mongoose');
+const Message = require('./models/Message'); 
+require('dotenv').config();
 
 const app = express();
-
 app.use(cors());
+
+// --- VERİTABANI BAĞLANTISI ---
+const dbURL = process.env.MONGO_URI;
+
+mongoose.connect(dbURL)
+  .then(() => console.log("✅ VERİTABANINA BAĞLANDI!"))
+  .catch((err) => console.log("❌ Veritabanı Hatası:", err));
 
 const server = http.createServer(app);
 
@@ -19,25 +28,34 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`Kullanıcı Bağlandı: ${socket.id}`);
 
-  // 1. Odaya Katılma (Burada socket.join ÇOK ÖNEMLİ)
-  socket.on("join_room", (data) => {
-    socket.join(data); 
-    console.log(`Kullanıcı ID: ${socket.id} - Oda: ${data} odasına katıldı.`);
+  // 1. Odaya Katılma ve ESKİ MESAJLARI YÜKLEME
+  socket.on("join_room", (room) => {
+    socket.join(room); 
+    console.log(`Kullanıcı ID: ${socket.id} - Oda: ${room} odasına katıldı.`);
+
+    // Veritabanından o odaya ait mesajları bul
+    Message.find({ room: room }).then((messages) => {
+      // Sadece odaya giren kişiye eski mesajları yolla
+      socket.emit("load_old_messages", messages);
+    });
   });
 
-  // 2. Mesaj Gönderme (Bu blok silinmişti, geri ekledik)
+  // 2. Mesaj Gönderme ve KAYDETME
   socket.on("send_message", (data) => {
-    console.log("Mesaj Geldi:", data); // Terminalde görmek için log
-    // Mesajı gönderen hariç, odadaki diğer kişiye yolla
-    socket.to(data.room).emit("receive_message", data);
+    // Önce veritabanına kaydet
+    const messageToSave = new Message(data);
+    
+    messageToSave.save().then(() => {
+      // Kayıt başarılıysa diğerlerine gönder
+      socket.to(data.room).emit("receive_message", data);
+    }).catch((err) => console.log("Mesaj kaydedilemedi:", err));
   });
 
+  // 3. Yazıyor Sinyali
   socket.on("typing", (data) => {
-    // Sinyali gönderen hariç herkese 'display_typing' eventi yolla
     socket.to(data.room).emit("display_typing", data);
   });
 
-  // 3. Ayrılma
   socket.on("disconnect", () => {
     console.log("Kullanıcı Ayrıldı", socket.id);
   });
