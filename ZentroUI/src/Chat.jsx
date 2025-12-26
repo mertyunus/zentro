@@ -33,25 +33,30 @@ function Chat({ socket, username, room }) {
   useEffect(() => {
     const messageHandler = (data) => {
       setMessageList((list) => [...list, data]);
-      setTypingStatus(""); // Mesaj geldiyse "yazıyor" yazısını sil
+      setTypingStatus("");
     };
 
     const typingHandler = (data) => {
-      // "Ali yazıyor..." şeklinde güncelle
       setTypingStatus(`${data.author} yazıyor...`);
-      
-      // 2 saniye sonra yazıyı otomatik sil (yoksa sonsuza kadar kalır)
       setTimeout(() => {
         setTypingStatus("");
       }, 3000);
     };
     
+    // YENİ: Eski mesajları yükleyen dinleyici
+    const oldMessagesHandler = (data) => {
+      console.log("Eski mesajlar yüklendi:", data);
+      setMessageList(data); // Listeyi tamamen eski mesajlarla değiştir
+    };
+    
     socket.on("receive_message", messageHandler);
     socket.on("display_typing", typingHandler);
+    socket.on("load_old_messages", oldMessagesHandler); // Dinlemeye başla
 
     return () => {
       socket.off("receive_message", messageHandler);
       socket.off("display_typing", typingHandler);
+      socket.off("load_old_messages", oldMessagesHandler); // Temizle
     };
   }, [socket]);
 
