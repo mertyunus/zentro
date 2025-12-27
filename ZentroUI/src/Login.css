@@ -1,0 +1,283 @@
+/* Ana Sayfa Arka Planı (Gradient) */
+.login-page {
+    min-height: 100vh;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e3a8a, #1e40af, #0891b2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* --- Yüzen Mesajlar & Animasyonlar --- */
+.floating-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-item {
+    position: absolute;
+    animation: float 6s ease-in-out infinite;
+}
+
+.message-bubble {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in;
+}
+
+.message-bubble span {
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Arka plandaki renkli toplar */
+.glow-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.glow-circle.purple {
+    top: 25%;
+    right: 25%;
+    width: 250px;
+    height: 250px;
+    background: rgba(168, 85, 247, 0.5);
+}
+
+.glow-circle.pink {
+    bottom: 25%;
+    left: 25%;
+    width: 350px;
+    height: 350px;
+    background: rgba(236, 72, 153, 0.5);
+    animation-delay: 2s;
+}
+
+/* --- Sol Üst Logo --- */
+.brand-header {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    z-index: 20;
+}
+
+.brand-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.brand-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+    font-size: 0.9rem;
+}
+
+/* --- Login Kartı --- */
+.login-card-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+/* Kartın arkasındaki parlama efekti */
+.glow-effect {
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(to right, #06b6d4, #2563eb);
+    border-radius: 24px;
+    filter: blur(20px);
+    opacity: 0.75;
+    animation: pulse 3s infinite;
+}
+
+.login-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s;
+}
+
+.login-card:hover {
+    transform: scale(1.02);
+}
+
+/* Kart İçeriği */
+.card-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+.logo-icon span {
+    font-size: 32px;
+}
+
+.card-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+}
+
+.card-header p {
+    color: #4b5563;
+    margin: 0;
+}
+
+/* Form Alanları */
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 48px;
+    padding-left: 44px; /* İkon için boşluk */
+    padding-right: 12px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px; /* Shadcn stili */
+    font-size: 16px;
+    color: #1f2937;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box; /* Padding taşmasını engeller */
+}
+
+.input-wrapper input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Butonlar */
+.submit-btn {
+    width: 100%;
+    height: 52px;
+    background: linear-gradient(to right, #2563eb, #06b6d4);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.submit-btn:hover {
+    opacity: 0.9;
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.switch-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    margin-top: 12px;
+    color: #4b5563;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.switch-btn:hover {
+    color: #1f2937;
+}
+
+.switch-btn b {
+    color: #2563eb;
+}
+
+/* En Alt Fade Efekti */
+.bottom-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 128px;
+    background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
+    pointer-events: none;
+}
+
+/* --- Keyframe Animasyonları --- */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+}

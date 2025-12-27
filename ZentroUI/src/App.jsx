@@ -94,7 +94,7 @@ function App() {
           {/* SAĞ TARAF (Sohbet) */}
           <div className="chat-area">
             {selectedUser ? (
-              <Chat socket={socket} username={currentUser.username} room={room} />
+              <Chat socket={socket} username={currentUser.username} room={room} selectedUser={selectedUser}/>
             ) : (
               <div className="welcome-screen">
                 <h3>Zentro'ya Hoşgeldin! 👋</h3>
