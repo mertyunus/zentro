@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; // 1. useEffect eklendi
 import './App.css';
 import io from 'socket.io-client';
 import Chat from './Chat';
@@ -18,17 +18,42 @@ function App() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [room, setRoom] = useState("");
 
+  // --- YENİ EKLENEN KISIM: Sayfa Yüklendiğinde Kontrol ---
+  useEffect(() => {
+    // Tarayıcı hafızasına bak
+    const storedToken = localStorage.getItem("token");
+    const storedUser = localStorage.getItem("user");
+
+    if (storedToken && storedUser) {
+      // Hafızada varsa state'i güncelle (Oturumu aç)
+      setToken(storedToken);
+      setCurrentUser(JSON.parse(storedUser)); // String'i objeye çeviriyoruz
+      setCurrentScreen("chat_interface");
+    }
+  }, []); // Boş [] olduğu için sadece sayfa ilk açıldığında (veya F5'te) çalışır
+
   const handleLoginSuccess = (token, username, userId) => {
+    // 1. State'i güncelle
     setToken(token);
-    setCurrentUser({ username, userId }); // Tüm bilgileri sakla
+    const userData = { username, userId };
+    setCurrentUser(userData); 
     setCurrentScreen("chat_interface");
+
+    // 2. YENİ EKLENEN KISIM: Tarayıcı hafızasına kaydet
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(userData)); // Objeyi string'e çevirip saklıyoruz
   };
 
   const logout = () => {
+    // 1. State'i temizle
     setCurrentUser(null);
     setToken(null);
     setSelectedUser(null);
     setCurrentScreen("login");
+
+    // 2. YENİ EKLENEN KISIM: Tarayıcı hafızasını temizle
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
   };
 
   // Bir kullanıcıya tıklayınca çalışır
@@ -36,10 +61,6 @@ function App() {
     setSelectedUser(otherUser);
 
     // --- ÖZEL ODA ALGORİTMASI ---
-    // Ali (ID: 10) ve Veli (ID: 20) konuşurken oda ID hep aynı olmalı.
-    // Çözüm: ID'leri alfabetik sıraya dizip birleştir.
-    // Oda ID: "10_20" (Ali de tıklasa, Veli de tıklasa sonuç aynı olur)
-    
     const ids = [currentUser.userId, otherUser._id].sort();
     const newRoomID = ids.join("_");
     
