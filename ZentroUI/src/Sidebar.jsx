@@ -1,20 +1,27 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Search } from 'lucide-react'; // İkon paketini unutma
+
+// Kullanıcı ismine göre rastgele ama sabit renk üreten fonksiyon
+// (Görsel zenginlik için ekledim, mantığı bozmaz)
+const getColor = (username) => {
+    const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+    let hash = 0;
+    if (!username) return colors[0];
+    for (let i = 0; i < username.length; i++) {
+        hash = username.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    return colors[Math.abs(hash) % colors.length];
+};
 
 function Sidebar({ currentUser, onSelectUser, onLogout, selectedUser }) {
   const [users, setUsers] = useState([]);
+  const [searchQuery, setSearchQuery] = useState(""); // Arama filtresi için state
 
   useEffect(() => {
-    // Veritabanındaki diğer kullanıcıları çek
     const fetchUsers = async () => {
       try {
-        // App.jsx'ten gelen userId'yi kullanıyoruz (currentUser.userId olmalı)
-        // Eğer currentUser obje değilse kontrol etmemiz lazım, şimdilik varsayalım.
-        // Not: Login.jsx'ten dönen veriye göre currentUser bir obje mi string mi kontrol edeceğiz.
-        // Güvenlik için id'yi localStorage'dan veya props'tan doğru almalıyız.
-        
-        // Basitlik için tüm kullanıcıları çekelim (Filtrelemeyi backend yapıyor ama ID lazım)
-        // Şimdilik ID göndermeden hepsini çekelim, Backend'i düzelteceğim.
+        // SENİN MEVCUT AXIOS İSTEĞİN (HİÇ DOKUNMADIM)
         const response = await axios.get(`http://localhost:3001/users/${currentUser.userId}`);
         setUsers(response.data);
       } catch (error) {
@@ -27,30 +34,77 @@ function Sidebar({ currentUser, onSelectUser, onLogout, selectedUser }) {
     }
   }, [currentUser]);
 
+  // Frontend tarafında filtreleme (Backend'e yük olmamak için)
+  const filteredUsers = users.filter(user => 
+    user.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="sidebar">
+      {/* HEADER KISMI (Modern Tasarım) */}
       <div className="sidebar-header">
-        <h3>Zentro 💬</h3>
-        <p>Ben: <b>{currentUser.username}</b></p>
-        <button onClick={onLogout} className="logout-btn">Çıkış</button>
+        <h1 className="app-title">Mesajlar</h1>
+        
+        {/* Arama Çubuğu */}
+        <div className="search-container">
+          <Search className="search-icon" size={18} />
+          <input 
+            type="text" 
+            placeholder="Kullanıcı ara..." 
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+        </div>
       </div>
-      <div className="users-list">
-        {users.map((user) => (
+
+      {/* KULLANICI LİSTESİ */}
+      <div className="user-list">
+        {filteredUsers.map((user) => (
           <div 
             key={user._id} 
-            // 2. MANTIK BURADA: Eğer ID'ler eşleşiyorsa "active" sınıfını ekle
+            // Aktif kullanıcı seçimi mantığını koruduk
             className={`user-item ${selectedUser && selectedUser._id === user._id ? "active" : ""}`} 
             onClick={() => onSelectUser(user)}
           >
-            {/* ... resim ve isim kısımları aynı ... */}
-             <img 
-              className="avatar-img" 
-              src={`https://api.dicebear.com/7.x/bottts/svg?seed=${user.username}`} 
-              alt="avatar" 
-            />
-            <p className="username-text">{user.username}</p>
+            {/* Avatar Kısmı (Daha şık hali) */}
+            <div 
+                className="avatar-circle" 
+                style={{ background: getColor(user.username) }}
+            >
+                {/* İsim baş harflerini gösterir (Örn: Yunus -> YU) */}
+                {user.username.substring(0,2).toUpperCase()}
+            </div>
+
+            <div className="user-info">
+                <div className="user-row-top">
+                  <span className="username">{user.username}</span>
+                  {/* Buraya istersen son görülme saati vb. ekleyebilirsin */}
+                </div>
+                <div className="user-row-bottom">
+                  <p className="last-message">Sohbeti başlatmak için tıkla...</p>
+                </div>
+            </div>
           </div>
         ))}
+
+        {/* Liste boşsa uyarı */}
+        {filteredUsers.length === 0 && (
+            <div style={{padding: '20px', textAlign: 'center', color: '#94a3b8', fontSize: '0.9rem'}}>
+                Kullanıcı bulunamadı.
+            </div>
+        )}
+      </div>
+
+      {/* FOOTER (Profil ve Çıkış) */}
+      <div className="sidebar-footer">
+        <div className="current-user">
+           {/* Senin Avatarın */}
+           <div className="avatar-circle small" style={{ background: '#1e293b' }}>
+              {currentUser?.username.substring(0,2).toUpperCase()}
+           </div>
+           <span>{currentUser?.username}</span>
+        </div>
+        <button onClick={onLogout} className="logout-btn">Çıkış</button>
       </div>
     </div>
   );

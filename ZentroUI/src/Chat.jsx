@@ -1,13 +1,19 @@
 import React, { useEffect, useState, useRef } from 'react';
 import EmojiPicker from 'emoji-picker-react'; 
+import { Send, Phone, Video, Info, MoreVertical, Smile, Check, CheckCheck } from 'lucide-react'; 
 
-function Chat({ socket, username, room }) {
+const getColor = (str) => {
+    const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'];
+    let hash = 0;
+    if(!str) return colors[0];
+    for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    return colors[Math.abs(hash) % colors.length];
+};
+
+function Chat({ socket, username, room, selectedUser }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
-  const [typingStatus, setTypingStatus] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
-
-  // Otomatik kaydırma için referans noktası
   const messagesEndRef = useRef(null);
 
   const sendMessage = async () => {
@@ -18,9 +24,12 @@ function Chat({ socket, username, room }) {
         author: username,
         message: currentMessage,
         time: now.getHours() + ":" + (now.getMinutes() < 10 ? '0' : '') + now.getMinutes(),
+        isRead: false, // İlk çıkışta KESİNLİKLE false (Gri)
       };
 
       await socket.emit("send_message", messageData);
+      
+      // Mesajı listeye ekle (Burada isRead: false olarak ekleniyor)
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
       setShowEmoji(false); 
@@ -31,167 +40,143 @@ function Chat({ socket, username, room }) {
     setCurrentMessage((prev) => prev + emojiObject.emoji);
   };
 
-  const handleTyping = (e) => {
-    setCurrentMessage(e.target.value);
-    socket.emit("typing", { room: room, author: username });
-  }
-
-  // --- 1. OTOMATİK KAYDIRMA (GÜNCELLENDİ) ---
   useEffect(() => {
-    // Ufak bir gecikme (100ms) ekliyoruz. 
-    // Bu sayede resimler/avatarlar yüklendikten sonra kaydırma yapılır.
-    const timer = setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-
-    return () => clearTimeout(timer);
-  }, [messageList, typingStatus, showEmoji]); // Emoji paneli açılınca da kaydır
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messageList, showEmoji]);
 
   useEffect(() => {
-    // Odaya katılma ve olay dinleyicileri
     socket.emit("join_room", room);
-
+    
     const messageHandler = (data) => {
-      setMessageList((list) => [...list, data]);
-      setTypingStatus("");
-
-      if (data.author !== username) {
-        try {
-          const audio = new Audio('/notification.mp3');
-          audio.play().catch(e => console.log("Ses çalınamadı:", e));
-        } catch (error) { console.log("Ses hatası"); }
-
-        if (document.hidden) {
-          document.title = "🔔 (1) Yeni Mesaj!";
+        setMessageList((list) => [...list, data]);
+        // Gelen mesaj başkasındansa ses çal
+        if (data.author !== username) {
+            try {
+                const audio = new Audio('/notification.mp3'); 
+                audio.play().catch(err => console.log("Ses hatası:", err));
+            } catch (e) {}
         }
-      }
     };
 
-    const typingHandler = (data) => {
-      setTypingStatus(`${data.author} yazıyor...`);
-      setTimeout(() => setTypingStatus(""), 3000);
-    };
-
-    const oldMessagesHandler = (data) => {
-      setMessageList(data);
-    };
-
-    const reconnectHandler = () => {
-      console.log("Yeniden bağlanıldı...");
-      socket.emit("join_room", room);
-    };
-
+    // Karşı taraf okuyunca tetiklenir: Listeyi güncelle
     const readUpdateHandler = () => {
-      socket.emit("join_room", room); 
+         socket.emit("join_room", room); // Verileri tazelemek için en garanti yol
     };
+
+    const oldMessagesHandler = (data) => setMessageList(data);
 
     socket.on("receive_message", messageHandler);
-    socket.on("display_typing", typingHandler);
     socket.on("load_old_messages", oldMessagesHandler);
-    socket.on("connect", reconnectHandler);
-    socket.on("messages_read_update", readUpdateHandler);
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) document.title = "Zentro Chat";
-    };
-    document.addEventListener("visibilitychange", handleVisibilityChange);
+    socket.on("messages_read_update", readUpdateHandler); 
 
     return () => {
-      socket.off("receive_message", messageHandler);
-      socket.off("display_typing", typingHandler);
-      socket.off("load_old_messages", oldMessagesHandler);
-      socket.off("connect", reconnectHandler);
-      socket.off("messages_read_update", readUpdateHandler);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
+        socket.off("receive_message", messageHandler);
+        socket.off("load_old_messages", oldMessagesHandler);
+        socket.off("messages_read_update", readUpdateHandler);
     };
-  }, [socket, room, username]); 
+  }, [socket, room, username]);
 
-  // Okundu bilgisi gönderme
+
+  // --- AKILLI OKUNDU BİLGİSİ ---
+  // Sadece sayfa aktifse ve yeni mesaj gelmişse "Okudum" diye bildir.
   useEffect(() => {
-    if (messageList.length > 0) {
-      socket.emit("mark_as_read", { room, user: username });
-    }
+     const markReadIfActive = () => {
+         if(messageList.length > 0) {
+             const lastMsg = messageList[messageList.length - 1];
+             
+             // Son mesaj benim değilse VE sayfa görünür durumdaysa okundu yap
+             if(lastMsg.author !== username && !document.hidden) {
+                 socket.emit("mark_as_read", { room, user: username });
+             }
+         }
+     };
+
+     // 1. Yeni mesaj geldiğinde kontrol et
+     markReadIfActive();
+
+     // 2. Kullanıcı başka sekmeden bu sekmeye döndüğünde kontrol et
+     const handleVisibilityChange = () => {
+         if (!document.hidden) {
+             markReadIfActive();
+         }
+     };
+
+     document.addEventListener("visibilitychange", handleVisibilityChange);
+     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+
   }, [messageList, room, username]);
 
+  const chatTitle = selectedUser ? selectedUser.username : room;
+
   return (
-    <div className="chat-window">
+    <div className="chat-wrapper">
       <div className="chat-header">
-        <p>Sohbet: {room.replace(/_/g, " & ")}</p>
+        <div className="header-left">
+           <div className="avatar-circle header-av" style={{ background: getColor(chatTitle) }}>
+             {chatTitle.substring(0,2).toUpperCase()}
+           </div>
+           <div className="header-text">
+             <h2>{chatTitle}</h2>
+             <p>Çevrimiçi</p>
+           </div>
+        </div>
+        <div className="header-actions">
+           <Phone size={20} className="icon-btn"/>
+           <Video size={20} className="icon-btn"/>
+           <Info size={20} className="icon-btn"/>
+           <MoreVertical size={20} className="icon-btn"/>
+        </div>
       </div>
-      <div className="chat-body">
-       {messageList.map((messageContent, index) => {
+
+      <div className="messages-area">
+        {messageList.map((msg, index) => {
+          const isMe = username === msg.author;
           return (
-            <div 
-              key={index} 
-              className="message-container"
-              id={username === messageContent.author ? "you" : "other"}
-            >
-              {username !== messageContent.author && (
-                 <img 
-                   className="chat-avatar" 
-                   src={`https://api.dicebear.com/7.x/bottts/svg?seed=${messageContent.author}`} 
-                   alt="avatar"
-                 />
-              )}
-
-              <div className="message">
-                <div>
-                  <div className="message-content">
-                    <p style={{color: 'black', margin: 0}}>{messageContent.message}</p>
+            <div key={index} className={`message-row ${isMe ? 'me' : 'other'}`}>
+               <div className={`bubble ${isMe ? 'bubble-me' : 'bubble-other'}`}>
+                  <p className="msg-text">{msg.message}</p>
+                  
+                  <div className="msg-footer">
+                      <span className={`msg-time ${isMe ? 'time-me' : 'time-other'}`}>{msg.time}</span>
+                      
+                      {isMe && (
+                          <span className="tick-icon">
+                              {/* Eğer isRead true ise Çift Mavi Tik, değilse Tek Gri Tik */}
+                              {msg.isRead ? 
+                                <CheckCheck size={16} color="#86efac" /> : 
+                                <Check size={16} color="rgba(255,255,255,0.7)" />
+                              }
+                          </span>
+                      )}
                   </div>
-                  <div className="message-meta">
-                    <p id="time">{messageContent.time}</p>
-                    <p id="author" style={{fontWeight: 'bold', margin: '0 5px'}}>{messageContent.author}</p>
-                    
-                    {username === messageContent.author && (
-                      <span className="tick-icon" style={{ 
-                        color: messageContent.isRead ? '#34b7f1' : 'gray',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}>
-                        {messageContent.isRead ? "✓✓" : "✓"} 
-                      </span>
-                    )}
-                  </div>
-                </div>
-              </div>
 
+               </div>
             </div>
           );
         })}
-        
-        {typingStatus && (
-          <div className="typing-indicator" style={{ fontStyle: 'italic', color: '#555', padding: '5px 10px', fontSize: '12px' }}>
-            {typingStatus}
-          </div>
-        )}
-        
-        {/* BU GÖRÜNMEZ KUTU SAYESİNDE AŞAĞI KAYIYORUZ */}
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="chat-footer">
-        <button
-          className="emoji-btn"
-          onClick={() => setShowEmoji(!showEmoji)}
-        >
-          😀
-        </button>
-
-        {showEmoji && (
-          <div className="emoji-picker-container">
+      <div className="input-area">
+         {showEmoji && (
+          <div className="emoji-popover">
             <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
           </div>
         )}
-
-        <input
-          type="text"
-          value={currentMessage}
-          placeholder="Bir mesaj yazın..."
-          onChange={handleTyping}
-          onKeyPress={(event) => { event.key === "Enter" && sendMessage(); }}
-        />
-        <button onClick={sendMessage}>&#9658;</button>
+         <div className="input-container">
+            <input 
+              type="text" 
+              placeholder="Bir mesaj yazın..." 
+              value={currentMessage}
+              onChange={(e) => setCurrentMessage(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && sendMessage()}
+            />
+            <Smile size={20} className="emoji-trigger" onClick={() => setShowEmoji(!showEmoji)} />
+         </div>
+         <button className="send-button" onClick={sendMessage}>
+            
+            <Send size={30} strokeWidth={2.5} style={{ marginLeft: '2px' }} /> 
+         </button>
       </div>
     </div>
   );

@@ -1,387 +1,241 @@
-.App {
-  width: 100vw;
+/* --- SIFIRLAMA ve GENEL --- */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background-color: #ffffff;
   height: 100vh;
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-.joinChatContainer {
-  display: flex;
-  flex-direction: column;
-  text-align: center;
-}
-
-.joinChatContainer input {
-  width: 200px;
-  height: 40px;
-  margin: 7px;
-  border: 2px solid #3f51b5;
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 16px;
-}
-
-.joinChatContainer button {
-  width: 215px;
-  height: 50px;
-  margin: 7px;
-  border: none;
-  border-radius: 5px;
-  padding: 5px;
-  font-size: 16px;
-  background: #3f51b5;
-  color: #fff;
-  cursor: pointer;
-}
-
-/* Chat Penceresi */
-.chat-window {
-  width: 300px;
-  height: 420px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.chat-header {
-  height: 45px;
-  border-radius: 10px 10px 0 0;
-  background: #2c3e50;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.chat-header p {
-  color: white;
-  font-weight: bold;
-}
-
-.chat-body {
-  height: 335px; /* header ve footer hariç alan */
-  border: 1px solid #ddd;
-  background: #ece5dd;
-  position: relative;
-  overflow-y: scroll; /* Kaydırma çubuğu */
-  padding: 10px;
-}
-
-.chat-footer {
-  height: 40px;
-  border-radius: 0 0 10px 10px;
-  display: flex;
-  border-top: 1px solid #ddd;
-}
-
-.chat-footer input {
-  flex: 85%;
-  height: 100%;
-  border: none;
-  padding-left: 10px;
-  border-radius: 0 0 0 10px;
-  outline: none;
-}
-
-.chat-footer button {
-  flex: 15%;
-  height: 100%;
-  background: #43a047;
-  border: none;
-  color: white;
-  border-radius: 0 0 10px 0;
-  cursor: pointer;
-}
-
-/* Mesaj Baloncukları */
-.message {
-  display: flex;
-  padding: 5px;
-}
-
-#you {
-  justify-content: flex-end;
-}
-
-#you .message-content {
-  background-color: #dcf8c6;
-  border-radius: 5px;
-  padding: 5px 10px;
-  max-width: 200px;
-}
-
-#other {
-  justify-content: flex-start;
-}
-
-#other .message-content {
-  background-color: #ffffff;
-  border-radius: 5px;
-  padding: 5px 10px;
-  max-width: 200px;
-}
-
-.message-meta {
-  display: flex;
-  font-size: 10px;
-  color: #555;
-  margin-top: 2px;
-}
-
-#you .message-meta {
-  justify-content: flex-end;
-}
-
-.message-content p {
-  color: #000 !important; /* Yazıyı zorla SİYAH yap */
-}
-
-/* Gelen mesajın arka planı */
-#other .message-content {
-  background-color: #ffffff;
-  border: 1px solid #ddd; /* Daha belirgin olsun diye kenarlık */
-}
-
-/* Benim mesajımın arka planı */
-#you .message-content {
-  background-color: #dcf8c6;
-  border: 1px solid #dcf8c6;
-}
-
-/* Auth (Giriş/Kayıt) Ekranları */
-.auth-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-}
-
-.auth-container input {
-  width: 250px;
-  height: 40px;
-  margin: 10px;
-  padding: 5px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 16px;
-}
-
-.auth-container button {
-  width: 265px;
-  height: 50px;
-  margin-top: 15px;
-  background-color: #3f51b5;
-  color: white;
-  border: none;
-  font-size: 18px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.toggle-text {
-  margin-top: 20px;
-  cursor: pointer;
-  color: #555;
-  font-size: 14px;
-}
-
-.toggle-text b {
-  color: #3f51b5;
-}
-
-.back-btn {
-  margin-top: 10px;
-  background-color: #777;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-
-/* WhatsApp Tarzı Düzen */
-.main-container {
-  display: flex;
-  width: 90vw;
-  height: 90vh;
-  background-color: white;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-  border-radius: 10px;
   overflow: hidden;
 }
 
-.sidebar-container {
-  flex: 30%; /* Sol taraf %30 */
-  background-color: #2c3e50;
-  color: white;
-  border-right: 1px solid #ddd;
-}
-
-.chat-area {
-  flex: 70%; /* Sağ taraf %70 */
-  background-color: #f0f2f5;
+.App, .main-container {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
 }
 
-/* Sidebar İçi */
+/* --- SIDEBAR (SOL TARAF) --- */
+.sidebar {
+  width: 340px;
+  background: white;
+  border-right: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-shrink: 0; /* Sidebar asla büzüşmesin */
+}
+
 .sidebar-header {
   padding: 20px;
-  background-color: #1a252f;
-  border-bottom: 1px solid #34495e;
+  border-bottom: 1px solid #f1f5f9;
+  flex-shrink: 0;
 }
 
-.logout-btn {
-  background-color: #c0392b;
-  font-size: 12px;
-  padding: 5px 10px;
-  width: auto;
-  height: auto;
-  margin-top: 5px;
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 16px 0;
+}
+
+.search-container { position: relative; }
+.search-icon {
+  position: absolute; left: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+}
+.search-container input {
+  width: 100%;
+  padding: 10px 10px 10px 40px;
+  background-color: #f1f5f9;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #334155;
+  outline: none;
+}
+
+/* KULLANICI LİSTESİ */
+.user-list {
+  flex: 1;
+  overflow-y: auto;
 }
 
 .user-item {
+  display: flex; align-items: flex-start;
+  padding: 16px; cursor: pointer;
+  border-bottom: 1px solid #f8fafc;
+  transition: background 0.2s;
+}
+.user-item:hover { background-color: #f8fafc; }
+.user-item.active { background-color: #eff6ff; border-left: 3px solid #3b82f6; }
+
+.avatar-circle {
+  width: 45px; height: 45px; border-radius: 50%; color: white;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 1rem; margin-right: 12px; flex-shrink: 0;
+}
+.avatar-circle.small { width: 35px; height: 35px; font-size: 0.8rem; }
+.avatar-circle.header-av { width: 40px; height: 40px; }
+
+.user-info { flex: 1; min-width: 0; }
+.user-row-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+.username { font-weight: 600; color: #0f172a; font-size: 0.95rem; }
+.time-text { font-size: 0.75rem; color: #64748b; }
+.user-row-bottom { display: flex; justify-content: space-between; align-items: center; }
+.last-message {
+  font-size: 0.85rem; color: #64748b; margin: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 160px;
+}
+.unread-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; }
+
+/* SIDEBAR FOOTER */
+.sidebar-footer {
+  padding: 23px;
+  border-top: 1px solid #e2e8f0;
+  background: #fff;
+  flex-shrink: 0;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.current-user { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; }
+.logout-btn { background: none; border: none; color: #ef4444; font-weight: 600; cursor: pointer; }
+
+
+/* --- CHAT ALANI (SAĞ TARAF - DÜZELTİLEN KISIM) --- */
+.chat-area {
+  flex: 1; /* Kalan tüm genişliği al */
   display: flex;
-  align-items: center;
-  padding: 15px;
-  cursor: pointer;
-  transition: background 0.3s;
-  border-bottom: 1px solid #34495e;
-}
-
-.user-item:hover {
-  background-color: #34495e;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  background-color: #3f51b5;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-right: 15px;
-  font-weight: bold;
-}
-
-.welcome-screen {
-  text-align: center;
-  color: #555;
-}
-
-/* Mevcut Chat Window'u sağ tarafa sığdır */
-.chat-window {
-  width: 100%;
   height: 100%;
-  border-radius: 0;
-  box-shadow: none;
+  width: 100%; /* Genişliği zorla */
+}
+
+.chat-wrapper {
   display: flex;
   flex-direction: column;
+  background: white;
+  height: 100%;
+  width: 100%; /* Wrapper da tam genişlik olsun */
+  position: relative;
 }
 
-.chat-body {
-  height: calc(100% - 100px); /* Header ve footerı çıkar */
+/* Chat Header */
+.chat-header {
+  height: 80px;
+  padding: 0 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex; justify-content: space-between; align-items: center;
+  flex-shrink: 0;
+  background: white;
+  width: 100%; /* Header tam genişlik */
+}
+.header-left { display: flex; align-items: center; gap: 12px; }
+.header-text h2 { margin: 0; font-size: 1rem; color: #0f172a; }
+.header-text p { margin: 0; font-size: 0.8rem; color: #64748b; }
+.header-actions { display: flex; gap: 15px; color: #64748b; }
+.icon-btn { cursor: pointer; } .icon-btn:hover { color: #3b82f6; }
+
+/* MESAJ ALANI - KAYDIRMA SADECE BURADA OLACAK */
+.messages-area {
+  flex: 1; 
+  padding: 24px;
+  overflow-y: auto; /* Kaydırma çubuğu */
+  display: flex; flex-direction: column; gap: 20px;
+  background: white;
+  width: 100%; /* Tam genişlik */
 }
 
-/* Emoji Butonu */
-.emoji-btn {
-  font-size: 20px !important; /* Butonu biraz büyüt */
-  background: none !important; /* Arka planı kaldır */
-  border: none !important;
-  cursor: pointer;
-  padding: 0 10px !important;
-  width: 50px !important;
-  transition: transform 0.2s;
+/* Scrollbar düzenlemesi (Daha şık görünsün) */
+.messages-area::-webkit-scrollbar { width: 6px; }
+.messages-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+.messages-area::-webkit-scrollbar-track { background: transparent; }
+
+.message-row { display: flex; width: 100%; }
+.message-row.me { justify-content: flex-end; }
+.message-row.other { justify-content: flex-start; }
+
+.bubble {
+  max-width: 70%; /* Baloncuk genişliği %70 ile sınırlı kalsın, %100 değil */
+  padding: 12px 18px; border-radius: 12px; position: relative; line-height: 1.5;
+  word-wrap: break-word; /* Uzun kelimeleri alt satıra at */
+}
+.bubble-me {
+  background: linear-gradient(90deg, #a855f7, #3b82f6);
+  color: white; border-bottom-right-radius: 2px;
+}
+.bubble-other {
+  background-color: #f1f5f9;
+  color: #0f172a; border-bottom-left-radius: 2px;
+}
+.msg-text { margin: 0; font-size: 0.95rem; }
+.msg-time { font-size: 0.7rem; margin-top: 5px; text-align: right; opacity: 0.8; }
+
+/* INPUT ALANI (FOOTER) */
+.input-area {
+  padding: 20px 24px;
+  border-top: 1px solid #e2e8f0;
+  background: white;
+  display: flex; align-items: center; gap: 12px;
+  flex-shrink: 0;
+  width: 100%; /* Input alanı tam genişlik */
+  position: relative;
 }
 
-.emoji-btn:hover {
-  transform: scale(1.2); /* Üzerine gelince büyüsün */
+.input-container {
+  flex: 1; background: #f1f5f9; border-radius: 24px;
+  padding: 0 16px; height: 48px; display: flex; align-items: center;
+}
+.input-container input {
+  flex: 1; background: transparent; border: none; outline: none;
+  font-size: 0.95rem; color: #0f172a; width: 100%;
+}
+.emoji-trigger { color: #64748b; cursor: pointer; }
+
+.send-button {
+  width: 50px; height: 50px; border-radius: 50%; border: none;
+  background: linear-gradient(90deg, #a855f7, #3b82f6);
+  color: white; display: flex; align-items: center; justify-content: center;
+  cursor: pointer; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
+  flex-shrink: 0;
 }
 
-/* Emoji Paneli Konumu */
-.emoji-picker-container {
-  position: absolute; /* Havada asılı dur */
-  bottom: 60px; /* Footer'ın biraz üstünde */
+/* EMOJI POPOVER */
+.emoji-popover {
+  position: absolute;
+  bottom: 85px;
   left: 20px;
-  z-index: 100; /* Her şeyin üstünde görün */
-  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+  z-index: 1000;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
 }
 
-/* Chat footer düzenlemesi (Input ve butonlar yan yana sığsın) */
-.chat-footer {
-  position: relative; /* Emoji paneli buna göre konumlanacak */
-  display: flex;
-  align-items: center;
+/* Welcome Screen Düzeltmeleri */
+.welcome-screen {
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.welcome-screen h3 { color: #0f172a !important; }
+.welcome-screen p { color: #64748b !important; }
+
+/* App.css içine ekle veya mevcut bubble ayarlarını bununla değiştir */
+
+.msg-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px; /* Saat ve tik arasındaki boşluk */
+    margin-top: 4px;
 }
 
-/* --- AVATAR STİLLERİ --- */
-
-/* Sidebar'daki Avatarlar */
-.avatar-img {
-  width: 45px;
-  height: 45px;
-  border-radius: 50%; /* Tam yuvarlak */
-  margin-right: 15px;
-  background-color: #eee; /* Resim yüklenene kadar gri */
-  border: 2px solid #fff;
+.msg-time {
+    font-size: 0.7rem;
+    opacity: 0.8;
 }
 
-.username-text {
-  font-weight: bold;
-  font-size: 16px;
+.tick-icon {
+    display: flex;
+    align-items: center;
 }
 
-/* Sohbet İçindeki Düzen */
-.message-container {
-  display: flex;
-  align-items: flex-end; /* Avatarı mesajın en altına hizala */
-  margin-bottom: 10px;
-}
-
-/* Mesaj balonunun yanındaki küçük avatar */
-.chat-avatar {
-  width: 35px;
-  height: 35px;
-  border-radius: 50%;
-  margin-right: 10px;
-  margin-bottom: 5px;
-  border: 1px solid #ccc;
-}
-
-/* Kendi mesajlarımız sağa yaslansın */
-#you {
-  justify-content: flex-end;
-}
-
-#you .message-content {
-  background-color: #dcf8c6;
-  border-radius: 10px 10px 0 10px; /* Köşeleri yuvarla */
-}
-
-#other {
-  justify-content: flex-start;
-}
-
-#other .message-content {
-  background-color: #fff;
-  border-radius: 10px 10px 10px 0;
-}
-
-/* Seçili Olan Kullanıcı */
-.user-item.active {
-  background-color: #34495e; /* Daha açık bir gri/mavi tonu */
-  border-left: 5px solid #3f51b5; /* Soluna mavi bir çizgi çekelim, havalı dursun */
-}
-
-/* Hover (üzerine gelince) efekti ile çakışmaması için */
-.user-item:hover {
-  background-color: #2c3e50; /* Hover rengi */
-}
+/* Diğer mevcut CSS kodların aynen kalsın */
