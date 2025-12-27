@@ -1,14 +1,13 @@
 import React, { useEffect, useState, useRef } from 'react';
-import EmojiPicker from 'emoji-picker-react'; // 1. EMOJI KÜTÜPHANESİNİ ÇAĞIRDIK
+import EmojiPicker from 'emoji-picker-react'; 
 
 function Chat({ socket, username, room }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [typingStatus, setTypingStatus] = useState("");
-
-  // 2. EMOJI PANELİ AÇIK MI KAPALI MI KONTROLÜ
   const [showEmoji, setShowEmoji] = useState(false);
 
+  // Otomatik kaydırma için referans noktası
   const messagesEndRef = useRef(null);
 
   const sendMessage = async () => {
@@ -24,15 +23,12 @@ function Chat({ socket, username, room }) {
       await socket.emit("send_message", messageData);
       setMessageList((list) => [...list, messageData]);
       setCurrentMessage("");
-      setShowEmoji(false); // Mesaj gidince paneli kapat
+      setShowEmoji(false); 
     }
   };
 
-  // 3. EMOJIYE TIKLAYINCA ÇALIŞAN FONKSİYON
   const onEmojiClick = (emojiObject) => {
-    // Mevcut mesajın sonuna seçilen emojiyi ekle
     setCurrentMessage((prev) => prev + emojiObject.emoji);
-    // Paneli kapatma, belki adam 3 tane emoji atacak :)
   };
 
   const handleTyping = (e) => {
@@ -40,9 +36,19 @@ function Chat({ socket, username, room }) {
     socket.emit("typing", { room: room, author: username });
   }
 
+  // --- 1. OTOMATİK KAYDIRMA (GÜNCELLENDİ) ---
   useEffect(() => {
-    // 1. EĞER BAĞLANTI KOPARSA DİYE OTOMATİK ODAYA GİRME EMRİ
-    // Chat bileşeni her açıldığında veya room değiştiğinde odaya gir
+    // Ufak bir gecikme (100ms) ekliyoruz. 
+    // Bu sayede resimler/avatarlar yüklendikten sonra kaydırma yapılır.
+    const timer = setTimeout(() => {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [messageList, typingStatus, showEmoji]); // Emoji paneli açılınca da kaydır
+
+  useEffect(() => {
+    // Odaya katılma ve olay dinleyicileri
     socket.emit("join_room", room);
 
     const messageHandler = (data) => {
@@ -53,9 +59,7 @@ function Chat({ socket, username, room }) {
         try {
           const audio = new Audio('/notification.mp3');
           audio.play().catch(e => console.log("Ses çalınamadı:", e));
-        } catch (error) {
-          console.log("Ses hatası");
-        }
+        } catch (error) { console.log("Ses hatası"); }
 
         if (document.hidden) {
           document.title = "🔔 (1) Yeni Mesaj!";
@@ -65,60 +69,44 @@ function Chat({ socket, username, room }) {
 
     const typingHandler = (data) => {
       setTypingStatus(`${data.author} yazıyor...`);
-      setTimeout(() => {
-        setTypingStatus("");
-      }, 3000);
+      setTimeout(() => setTypingStatus(""), 3000);
     };
 
-    // Eski mesajları veritabanından getiren fonksiyon
     const oldMessagesHandler = (data) => {
       setMessageList(data);
     };
 
-    // --- BAĞLANTI KOPUP GELİRSE ---
-    // Eğer internet giderse veya tarayıcı sekmeyi uyutursa, 
-    // geri gelince "connect" olayı tetiklenir.
     const reconnectHandler = () => {
-      console.log("Yeniden bağlanıldı, odaya tekrar giriliyor...");
+      console.log("Yeniden bağlanıldı...");
       socket.emit("join_room", room);
+    };
+
+    const readUpdateHandler = () => {
+      socket.emit("join_room", room); 
     };
 
     socket.on("receive_message", messageHandler);
     socket.on("display_typing", typingHandler);
     socket.on("load_old_messages", oldMessagesHandler);
-    socket.on("connect", reconnectHandler); // Yeniden bağlanma dinleyicisi
-
-    const handleVisibilityChange = () => {
-      if (!document.hidden) {
-        document.title = "Zentro Chat";
-      }
-    };
-
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // Karşı taraf mesajları okuyunca tetiklenir
-    const readUpdateHandler = () => {
-      // Basitçe: Veritabanından en güncel hali tekrar çekelim
-      // (Daha optimize yolları var ama şimdilik en garantisi bu)
-      socket.emit("join_room", room); 
-    };
-
+    socket.on("connect", reconnectHandler);
     socket.on("messages_read_update", readUpdateHandler);
 
+    const handleVisibilityChange = () => {
+      if (!document.hidden) document.title = "Zentro Chat";
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       socket.off("receive_message", messageHandler);
       socket.off("display_typing", typingHandler);
       socket.off("load_old_messages", oldMessagesHandler);
-      socket.off("connect", reconnectHandler); // Temizlik
+      socket.off("connect", reconnectHandler);
+      socket.off("messages_read_update", readUpdateHandler);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [socket, room]); // DİKKAT: Buraya 'room' da eklendi.
+  }, [socket, room, username]); 
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messageList, typingStatus]);
-
+  // Okundu bilgisi gönderme
   useEffect(() => {
     if (messageList.length > 0) {
       socket.emit("mark_as_read", { room, user: username });
@@ -128,17 +116,16 @@ function Chat({ socket, username, room }) {
   return (
     <div className="chat-window">
       <div className="chat-header">
-        <p>Sohbet: {room.replace(/_/g, " & ")}</p> {/* Oda ismini güzelleştirdik */}
+        <p>Sohbet: {room.replace(/_/g, " & ")}</p>
       </div>
       <div className="chat-body">
        {messageList.map((messageContent, index) => {
           return (
             <div 
               key={index} 
-              className="message-container" // Yeni sınıf
+              className="message-container"
               id={username === messageContent.author ? "you" : "other"}
             >
-              {/* Eğer mesaj başkasından geliyorsa avatarı sola koy */}
               {username !== messageContent.author && (
                  <img 
                    className="chat-avatar" 
@@ -154,13 +141,11 @@ function Chat({ socket, username, room }) {
                   </div>
                   <div className="message-meta">
                     <p id="time">{messageContent.time}</p>
-                    <p id="author" style={{fontWeight: 'bold', marginLeft: '5px', marginRight: '5px'}}>{messageContent.author}</p>
+                    <p id="author" style={{fontWeight: 'bold', margin: '0 5px'}}>{messageContent.author}</p>
                     
-                    {/* YENİ: TİK İŞARETİ */}
-                    {/* Sadece kendi mesajlarımda tik göster */}
                     {username === messageContent.author && (
                       <span className="tick-icon" style={{ 
-                        color: messageContent.isRead ? '#34b7f1' : 'gray', // Okunduysa Mavi, değilse Gri
+                        color: messageContent.isRead ? '#34b7f1' : 'gray',
                         fontSize: '12px',
                         fontWeight: 'bold'
                       }}>
@@ -174,16 +159,18 @@ function Chat({ socket, username, room }) {
             </div>
           );
         })}
+        
         {typingStatus && (
           <div className="typing-indicator" style={{ fontStyle: 'italic', color: '#555', padding: '5px 10px', fontSize: '12px' }}>
             {typingStatus}
           </div>
         )}
+        
+        {/* BU GÖRÜNMEZ KUTU SAYESİNDE AŞAĞI KAYIYORUZ */}
         <div ref={messagesEndRef} />
       </div>
 
       <div className="chat-footer">
-        {/* 4. EMOJI BUTONU */}
         <button
           className="emoji-btn"
           onClick={() => setShowEmoji(!showEmoji)}
@@ -191,7 +178,6 @@ function Chat({ socket, username, room }) {
           😀
         </button>
 
-        {/* 5. EMOJI PANELİ (Sadece showEmoji true ise görünür) */}
         {showEmoji && (
           <div className="emoji-picker-container">
             <EmojiPicker onEmojiClick={onEmojiClick} width={300} height={400} />
