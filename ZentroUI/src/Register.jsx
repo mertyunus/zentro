@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { User, Lock, ArrowRight, MessageCircle, Send, Smile, ImageIcon, Phone } from 'lucide-react';
-import './Login.css'; // Aynı CSS dosyasını kullanıyoruz, tasarımı bozmadan!
 
 // --- Yüzen Arka Plan Mesajları (Login ile aynı atmosferi korumak için) ---
 const FloatingMessages = () => {

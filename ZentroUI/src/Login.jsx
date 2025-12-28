@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { User, Lock, ArrowRight, MessageCircle, Send, Smile, ImageIcon, Phone } from 'lucide-react';
-import './Login.css'; // Tasarım dosyasını çağırıyoruz
+// import './App.css'; // Tasarım dosyasını çağırıyoruz
 
 // --- Yüzen Arka Plan Mesajları Bileşeni ---
 const FloatingMessages = () => {
