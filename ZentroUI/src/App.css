@@ -1,4 +1,4 @@
-/* --- SIFIRLAMA ve GENEL --- */
+
 * { box-sizing: border-box; }
 
 body {
@@ -16,7 +16,7 @@ body {
   overflow: hidden;
 }
 
-/* --- SIDEBAR (SOL TARAF) --- */
+
 .sidebar {
   width: 340px;
   background: white;
@@ -24,7 +24,7 @@ body {
   display: flex;
   flex-direction: column;
   height: 100%;
-  flex-shrink: 0; /* Sidebar asla büzüşmesin */
+  flex-shrink: 0;
 }
 
 .sidebar-header {
@@ -57,7 +57,6 @@ body {
   outline: none;
 }
 
-/* KULLANICI LİSTESİ */
 .user-list {
   flex: 1;
   overflow-y: auto;
@@ -91,7 +90,7 @@ body {
 }
 .unread-dot { width: 8px; height: 8px; background: #3b82f6; border-radius: 50%; }
 
-/* SIDEBAR FOOTER */
+
 .sidebar-footer {
   padding: 23px;
   border-top: 1px solid #e2e8f0;
@@ -102,13 +101,11 @@ body {
 .current-user { display: flex; align-items: center; gap: 10px; font-weight: 600; color: #0f172a; }
 .logout-btn { background: none; border: none; color: #ef4444; font-weight: 600; cursor: pointer; }
 
-
-/* --- CHAT ALANI (SAĞ TARAF - DÜZELTİLEN KISIM) --- */
 .chat-area {
-  flex: 1; /* Kalan tüm genişliği al */
+  flex: 1; 
   display: flex;
   height: 100%;
-  width: 100%; /* Genişliği zorla */
+  width: 100%; 
 }
 
 .chat-wrapper {
@@ -116,11 +113,10 @@ body {
   flex-direction: column;
   background: white;
   height: 100%;
-  width: 100%; /* Wrapper da tam genişlik olsun */
+  width: 100%; 
   position: relative;
 }
 
-/* Chat Header */
 .chat-header {
   height: 80px;
   padding: 0 24px;
@@ -128,7 +124,7 @@ body {
   display: flex; justify-content: space-between; align-items: center;
   flex-shrink: 0;
   background: white;
-  width: 100%; /* Header tam genişlik */
+  width: 100%; 
 }
 .header-left { display: flex; align-items: center; gap: 12px; }
 .header-text h2 { margin: 0; font-size: 1rem; color: #0f172a; }
@@ -136,17 +132,15 @@ body {
 .header-actions { display: flex; gap: 15px; color: #64748b; }
 .icon-btn { cursor: pointer; } .icon-btn:hover { color: #3b82f6; }
 
-/* MESAJ ALANI - KAYDIRMA SADECE BURADA OLACAK */
 .messages-area {
   flex: 1; 
   padding: 24px;
-  overflow-y: auto; /* Kaydırma çubuğu */
+  overflow-y: auto; 
   display: flex; flex-direction: column; gap: 20px;
   background: white;
-  width: 100%; /* Tam genişlik */
+  width: 100%; 
 }
 
-/* Scrollbar düzenlemesi (Daha şık görünsün) */
 .messages-area::-webkit-scrollbar { width: 6px; }
 .messages-area::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
 .messages-area::-webkit-scrollbar-track { background: transparent; }
@@ -156,9 +150,9 @@ body {
 .message-row.other { justify-content: flex-start; }
 
 .bubble {
-  max-width: 70%; /* Baloncuk genişliği %70 ile sınırlı kalsın, %100 değil */
+  max-width: 70%; 
   padding: 12px 18px; border-radius: 12px; position: relative; line-height: 1.5;
-  word-wrap: break-word; /* Uzun kelimeleri alt satıra at */
+  word-wrap: break-word; 
 }
 .bubble-me {
   background: linear-gradient(90deg, #a855f7, #3b82f6);
@@ -171,14 +165,13 @@ body {
 .msg-text { margin: 0; font-size: 0.95rem; }
 .msg-time { font-size: 0.7rem; margin-top: 5px; text-align: right; opacity: 0.8; }
 
-/* INPUT ALANI (FOOTER) */
 .input-area {
   padding: 20px 24px;
   border-top: 1px solid #e2e8f0;
   background: white;
   display: flex; align-items: center; gap: 12px;
   flex-shrink: 0;
-  width: 100%; /* Input alanı tam genişlik */
+  width: 100%; 
   position: relative;
 }
 
@@ -193,14 +186,13 @@ body {
 .emoji-trigger { color: #64748b; cursor: pointer; }
 
 .send-button {
-  width: 50px; height: 50px; border-radius: 50%; border: none;
+  width: 44px; height: 44px; border-radius: 50%; border: none;
   background: linear-gradient(90deg, #a855f7, #3b82f6);
   color: white; display: flex; align-items: center; justify-content: center;
   cursor: pointer; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);
   flex-shrink: 0;
 }
 
-/* EMOJI POPOVER */
 .emoji-popover {
   position: absolute;
   bottom: 85px;
@@ -210,7 +202,6 @@ body {
   border-radius: 12px;
 }
 
-/* Welcome Screen Düzeltmeleri */
 .welcome-screen {
     width: 100%; height: 100%;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -218,13 +209,11 @@ body {
 .welcome-screen h3 { color: #0f172a !important; }
 .welcome-screen p { color: #64748b !important; }
 
-/* App.css içine ekle veya mevcut bubble ayarlarını bununla değiştir */
-
 .msg-footer {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 4px; /* Saat ve tik arasındaki boşluk */
+    gap: 4px; 
     margin-top: 4px;
 }
 
@@ -238,4 +227,281 @@ body {
     align-items: center;
 }
 
-/* Diğer mevcut CSS kodların aynen kalsın */
+.login-page {
+    min-height: 100vh;
+    width: 100vw;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, #1e3a8a, #1e40af, #0891b2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+.floating-container {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.floating-item {
+    position: absolute;
+    animation: float 6s ease-in-out infinite;
+}
+
+.message-bubble {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(12px);
+    border-radius: 16px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 1s ease-in;
+}
+
+.message-bubble span {
+    color: white;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.glow-circle {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.4;
+    animation: pulse 4s ease-in-out infinite;
+}
+
+.glow-circle.purple {
+    top: 25%;
+    right: 25%;
+    width: 250px;
+    height: 250px;
+    background: rgba(168, 85, 247, 0.5);
+}
+
+.glow-circle.pink {
+    bottom: 25%;
+    left: 25%;
+    width: 350px;
+    height: 350px;
+    background: rgba(236, 72, 153, 0.5);
+    animation-delay: 2s;
+}
+
+
+.brand-header {
+    position: absolute;
+    top: 32px;
+    left: 32px;
+    z-index: 20;
+}
+
+.brand-header h1 {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    text-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.brand-header p {
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4px;
+    font-size: 0.9rem;
+}
+
+
+.login-card-wrapper {
+    position: relative;
+    z-index: 10;
+    width: 100%;
+    max-width: 450px;
+    padding: 20px;
+}
+
+.glow-effect {
+    position: absolute;
+    inset: -4px;
+    background: linear-gradient(to right, #06b6d4, #2563eb);
+    border-radius: 24px;
+    filter: blur(20px);
+    opacity: 0.75;
+    animation: pulse 3s infinite;
+}
+
+.login-card {
+    position: relative;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(24px);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s;
+}
+
+.login-card:hover {
+    transform: scale(1.02);
+}
+
+
+.card-header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.logo-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 64px;
+    height: 64px;
+    background: linear-gradient(135deg, #2563eb, #06b6d4);
+    border-radius: 16px;
+    margin-bottom: 16px;
+}
+
+.logo-icon span {
+    font-size: 32px;
+}
+
+.card-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin: 0 0 8px 0;
+}
+
+.card-header p {
+    color: #4b5563;
+    margin: 0;
+}
+
+
+.login-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.input-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 48px;
+    padding-left: 44px; /* İkon için boşluk */
+    padding-right: 12px;
+    background-color: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px; /* Shadcn stili */
+    font-size: 16px;
+    color: #1f2937;
+    outline: none;
+    transition: all 0.2s;
+    box-sizing: border-box; /* Padding taşmasını engeller */
+}
+
+.input-wrapper input:focus {
+    border-color: #2563eb;
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+.submit-btn {
+    width: 100%;
+    height: 52px;
+    background: linear-gradient(to right, #2563eb, #06b6d4);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 4px 6px -1px rgba(37, 99, 235, 0.3);
+}
+
+.submit-btn:hover {
+    opacity: 0.9;
+}
+
+.submit-btn:active {
+    transform: scale(0.98);
+}
+
+.submit-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.switch-btn {
+    width: 100%;
+    background: none;
+    border: none;
+    margin-top: 12px;
+    color: #4b5563;
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+
+.switch-btn:hover {
+    color: #1f2937;
+}
+
+.switch-btn b {
+    color: #2563eb;
+}
+
+/* En Alt Fade Efekti */
+.bottom-fade {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 128px;
+    background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
+    pointer-events: none;
+}
+
+/* --- Keyframe Animasyonları --- */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(5deg); }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.75; }
+    50% { opacity: 1; }
+}

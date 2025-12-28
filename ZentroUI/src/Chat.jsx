@@ -175,7 +175,7 @@ function Chat({ socket, username, room, selectedUser }) {
          </div>
          <button className="send-button" onClick={sendMessage}>
             
-            <Send size={30} strokeWidth={2.5} style={{ marginLeft: '2px' }} /> 
+            <Send size={20}/> 
          </button>
       </div>
     </div>
